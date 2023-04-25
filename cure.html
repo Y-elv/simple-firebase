@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .button {
+            background-color: aliceblue;
+        }
+        ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+    </style>
+</head>
+<!-- <script src="./config.js"></script> -->
+<script src="./cure.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.21.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.21.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.21.1/firebase-analytics.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAvms4oCb0MJUoIHopZUk2HznTP7E-FDEc",
+        authDomain: "cure-firebase.firebaseapp.com",
+        databaseURL: "https://cure-firebase-default-rtdb.firebaseio.com",
+        projectId: "cure-firebase",
+        storageBucket: "cure-firebase.appspot.com",
+        messagingSenderId: "728770205201",
+        appId: "1:728770205201:web:da95dfa0aa1661c8cd03b0",
+        measurementId: "G-TF9WPWXWET"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+      firebase.analytics()
+</script>
+
+<body>
+
+    <div id="chatbox">
+        <ul id="messages">
+
+        </ul>
+    </div>
+    <form onsubmit="sendMesage(event);">
+        <input type="text" id="name">
+        <input type="submit" class="button">
+
+    </form>
+    <!-- <script src="./config.js"></script>
+    <script src="./cure.js"></script> -->
+</body>
+<script>
+    let myName = prompt("enter your name")
+
+    const sendMesage = (event) => {
+        event.preventDefault()
+        console.log("hhhhhh")
+        let message = document.getElementById("name").value
+        firebase.database().ref("messages").push().set({
+            "sender": myName,
+            "message": message
+        });
+        let message1 = document.getElementById("name")
+        message1.value = "";
+        return false;
+    }
+    firebase.database().ref("messages").on("child_added",function(snap){
+        var html="";
+        //give each message a unique ID
+        html+="<li id='message"+snap.key+"'>";
+// show delete button if message is sent by me or sender
+            
+            if(snap.val().sender==myName){
+                html +="<button data-id='"+snap.key+"'onclick='deleteMessage(this);'>"
+                html+="Delete"
+                html+="</button>"
+            }
+            html+="{"+snap.val().sender+"}:" + snap.val().message;
+            html+="</li>"
+                document.getElementById("messages").innerHTML+=html
+    });
+
+    function deleteMessage(self){
+     //get messageId
+     var messageId =self.getAttribute("data-id")
+     //delete message
+     firebase.database().ref("messages").child(messageId).remove()
+    }
+
+    firebase.database().ref("messages").on("child_removed", function(snap){
+        document.getElementById("message" + snap.key).innerHTML="this message has been removed "
+    })
+</script>
+
+</html>
